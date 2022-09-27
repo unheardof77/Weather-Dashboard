@@ -3,7 +3,6 @@ const searchButton = document.querySelector(`button`);
 
 function getCoordinates(){
     cityName = document.querySelector(`input`).value.trim().replaceAll(` `, `-`);
-    console.log(cityName);
     const cordAPI = `http://api.openweathermap.org/geo/1.0/direct?q=`+cityName+`&limit=1&appid=327e492de8c1e347e7f779666d577345`;
     fetch(cordAPI)
         .then(function(response){
@@ -60,7 +59,6 @@ function createFutureData(data){
     $ul.appendChild($windLi);
     $ul.appendChild($humidityLi);
     $futureArea.appendChild($futureSection);
-
 };
 
 function displayData(data){
@@ -72,6 +70,10 @@ function displayData(data){
     let $main = document.getElementById(`mainStats`);
     let currentImg = document.createElement(`img`);
     let currentIcon = data.current.weather[0].icon;
+    const $button = document.createElement(`button`);
+    $button.setAttribute(`history`, data.current.dt);
+    $button.classList.add(`button`);
+    $button.textContent = cityName;
     currentImg.src = `./Assets/images/${currentIcon}.png`;
     $main.appendChild(currentImg);
     $temp.textContent = data.current.temp;
@@ -79,6 +81,7 @@ function displayData(data){
     $humidity.textContent= data.current.humidity;
     $uvIndex.textContent = data.current.uvi;
     $titleH2.textContent = cityName;
+    historyList.appendChild($button);
     for(i=0;i < 5 ;i++){
         createFutureData(data);
     };
