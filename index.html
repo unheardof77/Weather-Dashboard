@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="./Assets/Devolpment/style.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script defer src="./Assets/Devolpment/script.js"></script>
     <title>Weather</title>
 </head>
 <body>
-    <header class="d-flex justify-content-center">
+    <header class="d-flex justify-content-center bg-primary">
         <h1>Weather Dashboard</h1>
     </header>
     <main class="d-flex">
@@ -19,11 +20,11 @@
             <input>
             <button>Search</button>
             <hr>
-            <ul></ul>
+            <section id="historyList"></section>
         </section>
         <section class="col-8">
-            <section>
-                <h2 id="cityName"></h2>
+            <section id="mainStats">
+                <h2><span id="cityTitle"></span></h2>
                 <ul>
                     <li>Temp: <span id="temp"></span>F</li>
                     <li>Wind: <span id="wind"></span>MPH</li>
@@ -33,7 +34,6 @@
             </section>
             <section id="futureForecast">
                 <h2>5-Day Forecast:</h2>
-
             </section>
         </section>
     </main>
