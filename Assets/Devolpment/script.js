@@ -2,6 +2,7 @@ const $futureArea = document.getElementById(`futureForecast`);
 let historyList = document.getElementById(`historyList`);
 const searchButton = document.querySelector(`button`);
 let arrayOfHistory = JSON.parse(localStorage.getItem(`searchHistory`)) || []
+//Function getCoordinates takes the input value and returns the coordinates of it, then it runs the get server data and passes along its data.
 function getCoordinates(){
     cityName = document.querySelector(`input`).value.trim().replaceAll(` `, `-`);
     const cordAPI = `http://api.openweathermap.org/geo/1.0/direct?q=`+cityName+`&limit=1&appid=327e492de8c1e347e7f779666d577345`;
@@ -17,22 +18,22 @@ function getCoordinates(){
             getServerData(data);
         })
 };
-
+//Function historyButtonClick finds the indexNumber attribute of the button clicked and passes it too the display data function.  It also sets the city name equal to the clicked button's text content.
 function historyButtonClick(event){
     let clickedButton = event.target.getAttribute(`indexNumber`);
     cityName = event.target.textContent;
     
-    displayData(clickedButton);
+    displayData(clickedButton, false);
 };
-
+//Function makeButton creates the search history buttons.  It takes in their search index and stores it as a data-attribute to be used for later.
 function makeButton(searchIndex){
-        let $button = document.createElement(`button`);
-        $button.classList.add(`button`);
-        $button.setAttribute(`indexNumber`, searchIndex);
-        $button.textContent = cityName;
-        historyList.appendChild($button);
+    let $button = document.createElement(`button`);
+    $button.classList.add(`button`);
+    $button.setAttribute(`indexNumber`, searchIndex);
+    $button.textContent = cityName;
+    historyList.appendChild($button);
 }
-
+//Function getServerData takes the data from getCoordinates and traverses to the lat and lon.  Then it takes that information and uses it too find weather data from the coordinates location.
 function getServerData(data){
     const weatherURL = `https://api.openweathermap.org/data/3.0/onecall?lat=`+data[0].lat+`&lon=`+data[0].lon+`&appid=327e492de8c1e347e7f779666d577345&units=imperial`;
     fetch(weatherURL)
@@ -40,7 +41,7 @@ function getServerData(data){
             if(response.ok){
                 return response.json();
             }else{
-                errorPage(response.statusText)
+                errorPage(response.statusText);
             }
         })
         .then(function(data){
@@ -50,9 +51,10 @@ function getServerData(data){
                 humidity: `${data.current.humidity}`,
                 currentUvIndex: `${data.current.uvi}`,
                 currentImage:`${data.current.weather[0].icon}`
-            },]
+            }];
             for(i=0;i < 5 ;i++){
                 recentFutureSearch = {
+                    dailyDate: `${data.daily[i].dt}`,
                     dailyImg: `${data.daily[i].weather[0].icon}`,
                     dailyTemp: `${data.daily[i].temp.max}`,
                     dailyWind: `${data.daily[i].wind_speed}`,
@@ -66,11 +68,12 @@ function getServerData(data){
             localStorage.setItem(`searchHistory`, JSON.stringify(arrayOfHistory));
             storedHistory = JSON.parse(localStorage.getItem(`searchHistory`));
             console.log(storedHistory)
-            displayData(firstSearch);
+            displayData(firstSearch, true);
         })
 };
-
-function displayData(searchIndex){
+//Function displayData sets the text content for the current weather and creates a button for the search history as well as triggers the createFutureData function.
+function displayData(searchIndex, bool){
+    console.log(searchIndex)
     let $temp = document.getElementById(`temp`);
     let $wind = document.getElementById(`wind`);
     let $humidity= document.getElementById(`humidity`);
@@ -83,13 +86,23 @@ function displayData(searchIndex){
     $humidity.textContent= storedHistory[searchIndex][0].humidity;
     $uvIndex.textContent = storedHistory[searchIndex][0].currentUvIndex;
     $titleH2.textContent = cityName;
+    $uvIndex.removeAttribute(`class`)
+    if(storedHistory[searchIndex][0].currentUvIndex >= 6 ){
+        $uvIndex.classList.add(`bg-danger`);
+    }else if(storedHistory[searchIndex][0].currentUvIndex >= 3){
+        $uvIndex.classList.add(`bg-warning`);
+    }else{
+        $uvIndex.classList.add(`bg-success`);
+    };
     $futureArea.innerHTML = "";
-    makeButton(searchIndex);
+    if(bool){
+        makeButton(searchIndex);
+    };
     for(i=1;i < 6 ;i++){
         createFutureData(searchIndex, i);
     };
 };
-
+//Function createFutureData creates the dom elements for the 5 day forecast and appends them to the future area.
 function createFutureData(searchIndex, i){
     const $futureSection = document.createElement(`section`);
     const $h3 = document.createElement(`h3`);
@@ -98,13 +111,12 @@ function createFutureData(searchIndex, i){
     const $windLi = document.createElement(`li`);
     const $humidityLi = document.createElement(`li`);
     const $dailyImg = document.createElement(`img`);
-    //const UTC = data.daily[i].dt;
-    //const $date = moment(UTC).local();
-    //$h3.textContent = $date
+    $h3.textContent = moment().utc(storedHistory[searchIndex][i].dailyDate)
     $dailyImg.src = `./Assets/images/${storedHistory[searchIndex][i].dailyImg}.png`;
     $tempLi.textContent =`Temp:${storedHistory[searchIndex][i].dailyTemp}F`;
     $windLi.textContent =`Wind Speed:${storedHistory[searchIndex][i].dailyWind}MPH`;
     $humidityLi.textContent =`Humidity:${storedHistory[searchIndex][i].dailyHumidity}%`;
+    $futureSection.classList.add(`col-2,`, `bg-primary`, `border`, `border-dark`, `rounded`)
     $futureSection.appendChild($h3);
     $futureSection.appendChild($dailyImg);
     $futureSection.appendChild($ul);
@@ -113,9 +125,7 @@ function createFutureData(searchIndex, i){
     $ul.appendChild($humidityLi);
     $futureArea.appendChild($futureSection);
 };
-
-
-
-
-historyList.addEventListener(`click`, historyButtonClick)
+//listens for a click on the history buttons then runs historyButtonClick.
+historyList.addEventListener(`click`, historyButtonClick);
+// listens for click on the search button then runs getCoordinates.
 searchButton.addEventListener(`click`, getCoordinates);
