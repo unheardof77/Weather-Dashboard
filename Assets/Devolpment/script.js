@@ -5,7 +5,7 @@ let arrayOfHistory = JSON.parse(localStorage.getItem(`searchHistory`)) || []
 //Function getCoordinates takes the input value and returns the coordinates of it, then it runs the get server data and passes along its data.
 function getCoordinates(){
     cityName = document.querySelector(`input`).value.trim().replaceAll(` `, `-`);
-    const cordAPI = `http://api.openweathermap.org/geo/1.0/direct?q=`+cityName+`&limit=1&appid=327e492de8c1e347e7f779666d577345`;
+    const cordAPI = `https://api.openweathermap.org/geo/1.0/direct?q=`+cityName+`&limit=1&appid=327e492de8c1e347e7f779666d577345`;
     fetch(cordAPI)
         .then(function(response){
             if(response.ok){
@@ -63,17 +63,14 @@ function getServerData(data){
                 recentSearch.push(recentFutureSearch);
             };
             let firstSearch = arrayOfHistory.length  || 0
-            console.log(firstSearch)
             arrayOfHistory.push(recentSearch);
             localStorage.setItem(`searchHistory`, JSON.stringify(arrayOfHistory));
             storedHistory = JSON.parse(localStorage.getItem(`searchHistory`));
-            console.log(storedHistory)
             displayData(firstSearch, true);
         })
 };
 //Function displayData sets the text content for the current weather and creates a button for the search history as well as triggers the createFutureData function.
 function displayData(searchIndex, bool){
-    console.log(searchIndex)
     let $temp = document.getElementById(`temp`);
     let $wind = document.getElementById(`wind`);
     let $humidity= document.getElementById(`humidity`);
