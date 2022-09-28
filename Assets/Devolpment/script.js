@@ -25,6 +25,14 @@ function historyButtonClick(event){
     displayData(clickedButton);
 };
 
+function makeButton(searchIndex){
+        let $button = document.createElement(`button`);
+        $button.classList.add(`button`);
+        $button.setAttribute(`indexNumber`, searchIndex);
+        $button.textContent = cityName;
+        historyList.appendChild($button);
+}
+
 function getServerData(data){
     const weatherURL = `https://api.openweathermap.org/data/3.0/onecall?lat=`+data[0].lat+`&lon=`+data[0].lon+`&appid=327e492de8c1e347e7f779666d577345&units=imperial`;
     fetch(weatherURL)
@@ -53,6 +61,7 @@ function getServerData(data){
                 recentSearch.push(recentFutureSearch);
             };
             let firstSearch = arrayOfHistory.length  || 0
+            console.log(firstSearch)
             arrayOfHistory.push(recentSearch);
             localStorage.setItem(`searchHistory`, JSON.stringify(arrayOfHistory));
             storedHistory = JSON.parse(localStorage.getItem(`searchHistory`));
@@ -68,18 +77,14 @@ function displayData(searchIndex){
     let $uvIndex= document.getElementById(`uvIndex`);
     let $titleH2 = document.getElementById(`cityTitle`);
     let $currentImg = document.getElementById(`img`);
-    let $button = document.createElement(`button`);
-    $button.classList.add(`button`);
-    $button.setAttribute(`indexNumber`, searchIndex);
-    $button.textContent = cityName;
     $currentImg.src = `./Assets/images/${storedHistory[searchIndex][0].currentImage}.png`;
     $temp.textContent = storedHistory[searchIndex][0].currentTemp;
     $wind.textContent = storedHistory[searchIndex][0].currentWind;
     $humidity.textContent= storedHistory[searchIndex][0].humidity;
     $uvIndex.textContent = storedHistory[searchIndex][0].currentUvIndex;
     $titleH2.textContent = cityName;
-    historyList.appendChild($button);
-    $futureArea.innerHTML = ""
+    $futureArea.innerHTML = "";
+    makeButton(searchIndex);
     for(i=1;i < 6 ;i++){
         createFutureData(searchIndex, i);
     };
