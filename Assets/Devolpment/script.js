@@ -27,12 +27,21 @@ function historyButtonClick(event){
 };
 //Function makeButton creates the search history buttons.  It takes in their search index and stores it as a data-attribute to be used for later.
 function makeButton(searchIndex){
+    console.log(searchIndex)
     let $button = document.createElement(`button`);
     $button.classList.add(`button`);
     $button.setAttribute(`indexNumber`, searchIndex);
-    $button.textContent = cityName;
+    $button.textContent = storedHistory[searchIndex][0].cityName;
     historyList.appendChild($button);
 }
+
+function pageLoad(){
+    storedHistory = JSON.parse(localStorage.getItem(`searchHistory`));
+    for (i=0; i < storedHistory.length; i++){
+        makeButton(i);
+    }
+};
+
 //Function getServerData takes the data from getCoordinates and traverses to the lat and lon.  Then it takes that information and uses it too find weather data from the coordinates location.
 function getServerData(data){
     const weatherURL = `https://api.openweathermap.org/data/3.0/onecall?lat=`+data[0].lat+`&lon=`+data[0].lon+`&appid=327e492de8c1e347e7f779666d577345&units=imperial`;
@@ -46,6 +55,7 @@ function getServerData(data){
         })
         .then(function(data){
             recentSearch = [{
+                cityName: `${cityName}`,
                 currentTemp: `${data.current.temp}`,
                 currentWind: `${data.current.wind_speed}`,
                 humidity: `${data.current.humidity}`,
@@ -108,7 +118,7 @@ function createFutureData(searchIndex, i){
     const $windLi = document.createElement(`li`);
     const $humidityLi = document.createElement(`li`);
     const $dailyImg = document.createElement(`img`);
-    $h3.textContent = moment().utc(storedHistory[searchIndex][i].dailyDate)
+    $h3.textContent = moment().utc(storedHistory[searchIndex][i].dailyDate).format(`L`)
     $dailyImg.src = `./Assets/images/${storedHistory[searchIndex][i].dailyImg}.png`;
     $tempLi.textContent =`Temp:${storedHistory[searchIndex][i].dailyTemp}F`;
     $windLi.textContent =`Wind Speed:${storedHistory[searchIndex][i].dailyWind}MPH`;
@@ -126,3 +136,8 @@ function createFutureData(searchIndex, i){
 historyList.addEventListener(`click`, historyButtonClick);
 // listens for click on the search button then runs getCoordinates.
 searchButton.addEventListener(`click`, getCoordinates);
+
+if(JSON.parse(localStorage.getItem(`searchHistory`)) !== null){
+    pageLoad()
+    
+};
